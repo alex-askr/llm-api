@@ -37,8 +37,9 @@ app = Flask(__name__)
 @app.route('/ask', methods=['POST'])
 def answer_question():
     auth = request.authorization
+    content_type = request.content_type
     try:
-        if (auth == 'Bearer ' + bearer):
+        if (auth == 'Bearer ' + bearer and content_type == 'application/json'):
             req = request.get_json()
             q = req['question']
             u = req['user_email']
