@@ -31,14 +31,14 @@ def get_bot_answer(question):
 
 app = Flask(__name__)
 
-#{ 'question': 'this is the user question', 'chat_session_id': 'to keep previous context' }
-#{ 'answer': 'this is the bot answer', 'execution_time': 'as the name implies', 'chat_session_id': 'to keep previous context' }
+#{ 'question': 'this is the user question', 'user_email': 'to keep previous context - not mandatory' }
+#{ 'answer': 'this is the bot answer', 'execution_time': 'as the name implies', 'user_email': 'to keep previous context - empty if unknown' }
 @app.route('/ask', methods=['POST'])
 def answer_question():
     req = request.get_json()
     if (req['question'] != ''):
          bot_answer, execution_time = get_bot_answer(req['question'])
-         return jsonify({ 'answer': bot_answer, 'execution_time': execution_time, 'chat_session_id': '0' })
+         return jsonify({ 'answer': bot_answer, 'execution_time': execution_time, 'user_email': '' })
 
 
 
