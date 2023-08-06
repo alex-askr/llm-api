@@ -36,8 +36,8 @@ app = Flask(__name__)
 #{ 'answer': 'this is the bot answer', 'execution_time': 'as the name implies', 'user_email': 'to keep previous context - empty if unknown' }
 @app.route('/ask', methods=['POST'])
 def answer_question():
-    authorization = request.authorization
-    content_type = request.content_type
+    authorization = request.headers.get('Authorization')
+    content_type = request.headers.get('Content-Type')
     try:
         print(authorization)
         print(content_type)
