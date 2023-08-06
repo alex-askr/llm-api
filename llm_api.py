@@ -43,8 +43,8 @@ def answer_question():
         print(content_type)
         if (authorization == 'Bearer ' + bearer and content_type == 'application/json'):
             req = request.get_json()
-            q = req['question']
-            u = req['user_email']
+            q = req.get('question')
+            u = req.get('user_email')
             if (q != ''):
                 bot_answer, execution_time = get_bot_answer(q, u)
                 return jsonify({ 'answer': bot_answer, 'execution_time': execution_time, 'user_email': '' })
