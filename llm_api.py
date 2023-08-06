@@ -36,16 +36,17 @@ app = Flask(__name__)
 #{ 'answer': 'this is the bot answer', 'execution_time': 'as the name implies', 'user_email': 'to keep previous context - empty if unknown' }
 @app.route('/ask', methods=['POST'])
 def answer_question():
+    print('Http POST Request received')
     authorization = request.headers.get('Authorization')
     content_type = request.headers.get('Content-Type')
     try:
-        print(authorization)
-        print(content_type)
         if (authorization == 'Bearer ' + bearer and content_type == 'application/json'):
+            print('Request authorized')
             req = request.get_json()
             q = req.get('question')
             u = req.get('user_email')
             if (q != ''):
+                print('Question:' + q)
                 bot_answer, execution_time = get_bot_answer(q, u)
                 return jsonify({ 'answer': bot_answer, 'execution_time': execution_time, 'user_email': '' })
             else:
