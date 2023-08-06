@@ -6,6 +6,7 @@ import torch
 import time
 
 model = "meta-llama/Llama-2-7b-chat-hf"
+bearer = "123456789"
 
 tokenizer = AutoTokenizer.from_pretrained(model)
 pipeline = transformers.pipeline(
@@ -20,7 +21,7 @@ system_instruction = "<s>[INST] <<SYS>>\nYou are a helpful, respectful and hones
 def format_response(response):
     return response[response.index("[/INST]")+7:]
 
-def get_bot_answer(question):
+def get_bot_answer(question, user_email):
     instruction = system_instruction + question + '[/INST]'
     start_time = time.time()
     sequences = pipeline(instruction, do_sample=True, top_k=10, num_return_sequences=1, eos_token_id=tokenizer.eos_token_id, pad_token_id=tokenizer.eos_token_id, max_length=2000,)
@@ -35,10 +36,22 @@ app = Flask(__name__)
 #{ 'answer': 'this is the bot answer', 'execution_time': 'as the name implies', 'user_email': 'to keep previous context - empty if unknown' }
 @app.route('/ask', methods=['POST'])
 def answer_question():
-    req = request.get_json()
-    if (req['question'] != ''):
-         bot_answer, execution_time = get_bot_answer(req['question'])
-         return jsonify({ 'answer': bot_answer, 'execution_time': execution_time, 'user_email': '' })
+    auth = request.authorization
+    try:
+        if (auth == 'Bearer ' + bearer):
+            req = request.get_json()
+            q = req['question']
+            u = req['user_email']
+            if (q != ''):
+                bot_answer, execution_time = get_bot_answer(q, u)
+                return jsonify({ 'answer': bot_answer, 'execution_time': execution_time, 'user_email': '' })
+            else:
+                return 'Missing question argument', 400
+        else:
+            return '', 401 
+    except NameError:
+        return '', 401 
+    
 
 
 
