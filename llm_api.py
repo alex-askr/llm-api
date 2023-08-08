@@ -8,7 +8,7 @@ import time
 
 
 global_history = dict()
-
+history_max_token = 4092
 model = "meta-llama/Llama-2-7b-chat-hf"
 bearer = "123456789"
 
@@ -48,13 +48,19 @@ def get_bot_answer(question, user_email):
     return bot_response, execution_time
 
 def append_user_history(user, question, answer):
-    q_and_a_history = []
+    q_and_a_history = global_history.get(user)
     q_and_a = dict()
     q_and_a.update({'question': question})
     q_and_a.update({'answer': answer})
     q_and_a_history.append(q_and_a)
-    global_history.update({user: q_and_a_history})
+    global_history.update({user: get_filtered_history(q_and_a_history)})
     return
+
+def get_filtered_history(qa_list):
+    while (''.join(qa_list).len() > history_max_token):
+        qa_list.pop(0)
+    return qa_list
+
 
 def get_instruction_from_history(question, user_email):
     if (global_history.get(user_email) != None):
