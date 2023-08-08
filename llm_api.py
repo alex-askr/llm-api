@@ -48,7 +48,10 @@ def get_bot_answer(question, user_email):
     return bot_response, execution_time
 
 def append_user_history(user, question, answer):
-    q_and_a_history = global_history.get(user)
+    if(global_history.get(user) != None):
+        q_and_a_history = global_history.get(user)
+    else:
+        q_and_a_history = []
     q_and_a = dict()
     q_and_a.update({'question': question})
     q_and_a.update({'answer': answer})
