@@ -32,7 +32,7 @@ history = []
 system_instruction = "\nYou are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe.  Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature.If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you do not know the answer to a question, please do not share false information.\n"
 
 def format_response(response):
-    return response[response.index("[/INST]")+7:]
+    return response[response.rindex(end_instruction_token)+7:]
 
 def get_bot_answer(question, user_email):
     if (user_email != ''):
