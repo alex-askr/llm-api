@@ -60,7 +60,7 @@ def append_user_history(user, question, answer):
     return
 
 def get_filtered_history(qa_list):
-    while (''.join(qa_list).len() > history_max_token):
+    while (str(qa_list).len() > history_max_token):
         qa_list.pop(0)
     return qa_list
 
