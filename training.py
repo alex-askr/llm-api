@@ -58,7 +58,7 @@ def training():
         args=training_args,
         max_seq_length=HISTORY_MAX_TOKEN,
         train_dataset=dataset,
-        peft_config=Optional[peft_config],
+        peft_config=peft_config,
     )
 
     trainer.train()
