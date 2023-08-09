@@ -3,7 +3,7 @@ from datasets import load_dataset
 from peft import (
     LoraConfig,
 )
-from transformers import AutoModelForCausalLM, TrainingArguments
+from transformers import AutoModelForCausalLM, BitsAndBytesConfig, TrainingArguments
 from trl import SFTTrainer
 
 from constants import (
@@ -19,12 +19,15 @@ from constants import (
 def training():
     # Step 1: Load the model
     print('# Step 1: Load the model')
+    quantization_config = BitsAndBytesConfig(
+        load_in_8bit=False, load_in_4bit=True
+    )
+
     base_model = AutoModelForCausalLM.from_pretrained(
         PRETRAINED_MODEL_NAME,
-        load_in_4bit=True,
-        torch_dtype=torch.float16,
+        quantization_config=quantization_config,
+        torch_dtype=torch.bfloat16,
         device_map="auto",
-        temperature=None,
     )
 
     # Step 2: Load the dataset
@@ -35,8 +38,8 @@ def training():
     print('# Step 3: Define the training arguments')
     training_args = TrainingArguments(
         output_dir=OUTPUT_DIR,
-        per_device_train_batch_size=BATCH_SIZE,
-        gradient_accumulation_steps=GRADIENT_ACCUMULATION_STEPS,
+        per_device_train_batch_size=4,
+        gradient_accumulation_steps=2,
         learning_rate=LEARNING_RATE,
         num_train_epochs=TRAIN_STEPS,
     )
