@@ -1,6 +1,6 @@
 HISTORY_MAX_TOKEN = 4092
 PRETRAINED_MODEL_NAME = "meta-llama/Llama-2-7b-chat-hf"
-DATASET_FILE_NAME = 'prepared_dataset.json'
+DATASET_FILE_NAME = 'prepared_dataset.csv'
 BEARER = "123456789"
 
 START_SENTENCE_TOKEN = "<s>"
