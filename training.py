@@ -1,18 +1,16 @@
 import torch
 from datasets import load_dataset
-from peft import (
-    LoraConfig,
-)
+from peft import LoraConfig, prepare_model_for_kbit_training
 from transformers import AutoModelForCausalLM, BitsAndBytesConfig, TrainingArguments
 from trl import SFTTrainer
 
 from constants import (
-    BATCH_SIZE,
     GRADIENT_ACCUMULATION_STEPS,
     LEARNING_RATE,
     TRAIN_STEPS,
     OUTPUT_DIR,
-    PRETRAINED_MODEL_NAME, LORA_ALPHA, LORA_R, HISTORY_MAX_TOKEN, DATASET_FILE_NAME
+    PRETRAINED_MODEL_NAME, LORA_ALPHA, LORA_R, HISTORY_MAX_TOKEN, DATASET_FILE_NAME, PER_DEVICE_BATCH_SIZE, MAX_STEPS,
+    LOGGING_STEPS
 )
 
 
@@ -38,14 +36,21 @@ def training():
     print('# Step 3: Define the training arguments')
     training_args = TrainingArguments(
         output_dir=OUTPUT_DIR,
-        per_device_train_batch_size=4,
-        gradient_accumulation_steps=2,
+        per_device_train_batch_size=PER_DEVICE_BATCH_SIZE,
+        gradient_accumulation_steps=GRADIENT_ACCUMULATION_STEPS,
         learning_rate=LEARNING_RATE,
         num_train_epochs=TRAIN_STEPS,
+        max_step=MAX_STEPS,
+        logging_steps=LOGGING_STEPS,
+        fp16=True,
+        optim="paged_adamw_8bit",
     )
 
     # Step 4: Define the LoraConfig
     print('# Step 4: Define the LoraConfig')
+    base_model.gradient_checkpointing_enable()
+    base_model = prepare_model_for_kbit_training(base_model)
+    base_model.config.use_cache = False
     peft_config = LoraConfig(
         r=LORA_R,
         lora_alpha=LORA_ALPHA,
