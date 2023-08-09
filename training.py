@@ -25,6 +25,7 @@ def training():
         load_in_8bit=True,
         torch_dtype=torch.float16,
         device_map="auto",
+        do_sample=True,
     )
 
     # Step 2: Load the dataset
