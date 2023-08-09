@@ -1,6 +1,5 @@
 import torch
 from datasets import load_dataset
-from typing import Optional
 from peft import (
     LoraConfig,
 )
