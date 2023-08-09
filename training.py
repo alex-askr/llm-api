@@ -30,7 +30,7 @@ def training():
 
     # Step 2: Load the dataset
     print('# Step 2: Load the dataset')
-    dataset = load_dataset('csv', data_files=DATASET_FILE_NAME, field="data")
+    dataset = load_dataset('csv', data_files=DATASET_FILE_NAME)
 
     # Step 3: Define the training arguments
     print('# Step 3: Define the training arguments')
