@@ -21,7 +21,7 @@ def training():
     print('# Step 1: Load the model')
     base_model = AutoModelForCausalLM.from_pretrained(
         PRETRAINED_MODEL_NAME,
-        load_in_8bit=True,
+        load_in_4bit=True,
         torch_dtype=torch.float16,
         device_map="auto",
         temperature=None,
