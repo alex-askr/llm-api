@@ -31,6 +31,7 @@ if os.path.exists(FINE_TUNED_MODEL_NAME):
         torch_dtype=torch.float16,
         device_map="auto",
     )
+    print("USING FINE_TUNED_MODEL")
 else:
     tokenizer = AutoTokenizer.from_pretrained(PRETRAINED_MODEL_NAME)
     pipeline = transformers.pipeline(
@@ -39,6 +40,7 @@ else:
         torch_dtype=torch.float16,
         device_map="auto",
     )
+    print("USING PRETRAINED_MODEL")
 
 history = []
 
