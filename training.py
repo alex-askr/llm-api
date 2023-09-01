@@ -1,14 +1,15 @@
 import torch
 from datasets import load_dataset
-from peft import LoraConfig, prepare_model_for_kbit_training
-from transformers import AutoModelForCausalLM, BitsAndBytesConfig, TrainingArguments
+from peft import LoraConfig, prepare_model_for_kbit_training, AutoPeftModelForCausalLM
+from transformers import AutoModelForCausalLM, BitsAndBytesConfig, TrainingArguments, AutoTokenizer
 from trl import SFTTrainer
 
 from constants import (
     GRADIENT_ACCUMULATION_STEPS,
     LEARNING_RATE,
     TRAIN_STEPS,
-    OUTPUT_DIR,
+    FINE_TUNED_MODELS_DIRECTORY,
+    FINE_TUNED_MODEL_NAME,
     PRETRAINED_MODEL_NAME, LORA_ALPHA, LORA_R, HISTORY_MAX_TOKEN, DATASET_FILE_NAME, PER_DEVICE_BATCH_SIZE, MAX_STEPS,
     LOGGING_STEPS
 )
@@ -35,7 +36,7 @@ def training():
     # Step 3: Define the training arguments
     print('# Step 3: Define the training arguments')
     training_args = TrainingArguments(
-        output_dir=OUTPUT_DIR,
+        output_dir=FINE_TUNED_MODELS_DIRECTORY,
         per_device_train_batch_size=PER_DEVICE_BATCH_SIZE,
         gradient_accumulation_steps=GRADIENT_ACCUMULATION_STEPS,
         learning_rate=LEARNING_RATE,
@@ -73,7 +74,26 @@ def training():
 
     # Step 6: Save the model
     print('# Step 6: Save the model')
-    trainer.save_model(OUTPUT_DIR)
+    trainer.save_model(FINE_TUNED_MODELS_DIRECTORY)
+
+    # Step 7: Merge
+    model = AutoPeftModelForCausalLM.from_pretrained(
+        FINE_TUNED_MODELS_DIRECTORY,
+        low_cpu_mem_usage=True,
+        return_dict=True,
+        torch_dtype=torch.float16,
+        device_map="auto",
+    )
+
+    # Merge LoRA and base model
+    merged_model = model.merge_and_unload()
+    tokenizer = AutoTokenizer.from_pretrained(PRETRAINED_MODEL_NAME)
+
+    # Save the merged model
+    merged_model.save_pretrained(FINE_TUNED_MODEL_NAME, safe_serialization=True)
+    tokenizer.save_pretrained(FINE_TUNED_MODEL_NAME)
+
+    print("Successful model fine-tuning")
     return
 
 
