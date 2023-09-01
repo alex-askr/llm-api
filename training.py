@@ -8,7 +8,7 @@ from constants import (
     GRADIENT_ACCUMULATION_STEPS,
     LEARNING_RATE,
     TRAIN_STEPS,
-    FINE_TUNED_MODELS_DIRECTORY,
+    OUTPUT_DIR,
     FINE_TUNED_MODEL_NAME,
     PRETRAINED_MODEL_NAME, LORA_ALPHA, LORA_R, HISTORY_MAX_TOKEN, DATASET_FILE_NAME, PER_DEVICE_BATCH_SIZE, MAX_STEPS,
     LOGGING_STEPS
@@ -36,7 +36,7 @@ def training():
     # Step 3: Define the training arguments
     print('# Step 3: Define the training arguments')
     training_args = TrainingArguments(
-        output_dir=FINE_TUNED_MODELS_DIRECTORY,
+        output_dir=OUTPUT_DIR,
         per_device_train_batch_size=PER_DEVICE_BATCH_SIZE,
         gradient_accumulation_steps=GRADIENT_ACCUMULATION_STEPS,
         learning_rate=LEARNING_RATE,
@@ -73,11 +73,11 @@ def training():
 
     # Step 6: Save the model
     print('# Step 6: Save the model')
-    trainer.save_model(FINE_TUNED_MODELS_DIRECTORY)
+    trainer.save_model(OUTPUT_DIR)
 
     # Step 7: Merge
     model = AutoPeftModelForCausalLM.from_pretrained(
-        FINE_TUNED_MODELS_DIRECTORY,
+        OUTPUT_DIR,
         low_cpu_mem_usage=True,
         return_dict=True,
         torch_dtype=torch.float16,

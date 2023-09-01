@@ -31,5 +31,5 @@ LEARNING_RATE = 2e-4
 TRAIN_STEPS = 10
 MAX_STEPS = 20
 LOGGING_STEPS = 1
-FINE_TUNED_MODELS_DIRECTORY = "finetuned_models"
+OUTPUT_DIR = "working_dir"
 FINE_TUNED_MODEL_NAME = "fine_tuned_model"

@@ -1,3 +1,4 @@
+import os
 import time
 
 import torch
@@ -16,18 +17,28 @@ from constants import (
     END_INSTRUCTION_TOKEN,
     START_SYSTEM_TOKEN,
     END_SYSTEM_TOKEN,
-    SYSTEM_INSTRUCTION
+    SYSTEM_INSTRUCTION,
+    FINE_TUNED_MODEL_NAME
 )
 
 global_history = dict()
 
-tokenizer = AutoTokenizer.from_pretrained(PRETRAINED_MODEL_NAME)
-pipeline = transformers.pipeline(
-    "text-generation",
-    model=PRETRAINED_MODEL_NAME,
-    torch_dtype=torch.float16,
-    device_map="auto",
-)
+if os.path.exists(FINE_TUNED_MODEL_NAME):
+    tokenizer = AutoTokenizer.from_pretrained(FINE_TUNED_MODEL_NAME)
+    pipeline = transformers.pipeline(
+        "text-generation",
+        model=FINE_TUNED_MODEL_NAME,
+        torch_dtype=torch.float16,
+        device_map="auto",
+    )
+else:
+    tokenizer = AutoTokenizer.from_pretrained(PRETRAINED_MODEL_NAME)
+    pipeline = transformers.pipeline(
+        "text-generation",
+        model=PRETRAINED_MODEL_NAME,
+        torch_dtype=torch.float16,
+        device_map="auto",
+    )
 
 history = []
 
