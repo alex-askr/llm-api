@@ -41,7 +41,6 @@ def training():
         gradient_accumulation_steps=GRADIENT_ACCUMULATION_STEPS,
         learning_rate=LEARNING_RATE,
         num_train_epochs=TRAIN_STEPS,
-        max_step=MAX_STEPS,
         logging_steps=LOGGING_STEPS,
         fp16=True,
         optim="paged_adamw_8bit",
