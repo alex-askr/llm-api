@@ -20,7 +20,7 @@ SYSTEM_INSTRUCTION_OLD = "You are a helpful, respectful and honest assistant. Al
                      "explain why instead of answering something not correct. If you do not know the answer to " \
                      "a question, please do not share false information.\n"
 
-LORA_R = 8
+LORA_R = 64
 LORA_ALPHA = 16
 LORA_DROPOUT = 0.05
 LORA_TARGET_MODULES = [
@@ -32,8 +32,8 @@ PER_DEVICE_BATCH_SIZE = 1
 MICRO_BATCH_SIZE = 4
 GRADIENT_ACCUMULATION_STEPS = 4
 LEARNING_RATE = 2e-4
-TRAIN_STEPS = 100
+NUM_TRAIN_EPOCH = 200
 MAX_STEPS = 20
-LOGGING_STEPS = 1
+LOGGING_STEPS = 10
 OUTPUT_DIR = "working_dir"
 FINE_TUNED_MODEL_NAME = "fine_tuned_model"

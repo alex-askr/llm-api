@@ -7,7 +7,7 @@ from trl import SFTTrainer
 from constants import (
     GRADIENT_ACCUMULATION_STEPS,
     LEARNING_RATE,
-    TRAIN_STEPS,
+    NUM_TRAIN_EPOCH,
     OUTPUT_DIR,
     FINE_TUNED_MODEL_NAME,
     PRETRAINED_MODEL_NAME, LORA_ALPHA, LORA_R, HISTORY_MAX_TOKEN, DATASET_FILE_NAME, PER_DEVICE_BATCH_SIZE, MAX_STEPS,
@@ -19,12 +19,39 @@ def training():
     # Step 1: Load the model
     print('# Step 1: Load the model')
     quantization_config = BitsAndBytesConfig(
-        load_in_8bit=False, load_in_4bit=True
+        load_in_8bit=False,
+        bnb_4bit_compute_type=torch.float16,
+        load_in_4bit=True
+    )
+
+
+    # Activate 4-bit precision base model loading
+    use_4bit = True
+    # Compute dtype for 4-bit base models
+    bnb_4bit_compute_dtype = "float16"
+    # Quantization type (fp4 or nf4)
+    bnb_4bit_quant_type = "nf4"
+    # Activate nested quantization for 4-bit base models (double quantization)
+    use_double_nested_quant = False
+    # LoRA attention dimension
+    lora_r = 64
+    # Alpha parameter for LoRA scaling
+    lora_alpha = 16
+    # Dropout probability for LoRA layers
+    lora_dropout = 0.1
+
+    compute_dtype = getattr(torch, bnb_4bit_compute_dtype)
+
+    bnb_config = BitsAndBytesConfig(
+        load_in_4bit=use_4bit,
+        bnb_4bit_use_double_quant=use_double_nested_quant,
+        bnb_4bit_quant_type=bnb_4bit_quant_type,
+        bnb_4bit_compute_dtype=compute_dtype
     )
 
     base_model = AutoModelForCausalLM.from_pretrained(
         PRETRAINED_MODEL_NAME,
-        quantization_config=quantization_config,
+        quantization_config=bnb_config,
         torch_dtype=torch.bfloat16,
         device_map="auto",
     )
@@ -40,7 +67,7 @@ def training():
         per_device_train_batch_size=PER_DEVICE_BATCH_SIZE,
         gradient_accumulation_steps=GRADIENT_ACCUMULATION_STEPS,
         learning_rate=LEARNING_RATE,
-        num_train_epochs=TRAIN_STEPS,
+        num_train_epochs=NUM_TRAIN_EPOCH,
         logging_steps=LOGGING_STEPS,
         fp16=True,
         optim="paged_adamw_8bit",
