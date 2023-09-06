@@ -49,7 +49,7 @@ def format_response(response):
     return response[response.rindex(END_INSTRUCTION_TOKEN) + 7:]
 
 
-def get_bot_answer(question, user_email, system_prompt):
+def get_bot_answer(question, user_email, system_prompt, max_answer_length):
     if system_prompt != '':
         sp = system_prompt
     else:
@@ -61,7 +61,7 @@ def get_bot_answer(question, user_email, system_prompt):
     print(instruction)
     start_time = time.time()
     sequences = pipeline(instruction, do_sample=True, top_k=10, num_return_sequences=1,
-                         eos_token_id=tokenizer.eos_token_id, pad_token_id=tokenizer.eos_token_id, max_length=2000, )
+                         eos_token_id=tokenizer.eos_token_id, pad_token_id=tokenizer.eos_token_id, max_length=max_answer_length, )
     bot_response = ''
     for seq in sequences:
         bot_response = format_response(seq['generated_text'])
@@ -123,10 +123,12 @@ def fine_tune_model(data):
 app = Flask(__name__)
 
 
-# request { 'question': 'this is the user question', 'user_email': 'to keep previous context - not mandatory', 'system_prompt': 'system prompt to use - not mandatory' }
+# request { 'question': 'this is the user question', 'user_email': 'to keep previous context - not mandatory',
+#    'system_prompt': 'system prompt to use - not mandatory' }
+#    'max_length': 'max answer length in number of token - not mandatory' }
+
 # response { 'answer': 'this is the bot answer', 'execution_time': 'as the name implies',
-# 'user_email': 'to keep previous context - empty if unknown' }
-# 'system_prompt': 'system instruction for the model - empty to use the one by default' }
+
 @app.route('/ask', methods=['POST'])
 def answer_question():
     print('Http POST Request received')
@@ -136,12 +138,13 @@ def answer_question():
         if authorization == 'Bearer ' + BEARER and content_type == 'application/json':
             print('Request authorized')
             req = request.get_json()
-            q = req.get('question')
-            u = req.get('user_email')
-            s = req.get('system_prompt')
+            q = req.get('question', '')
+            u = req.get('user_email', '')
+            s = req.get('system_prompt', '')
+            ml = req.get('max_length', 200)
             if q != '':
                 print('Question:' + q)
-                bot_answer, execution_time = get_bot_answer(q, u, s)
+                bot_answer, execution_time = get_bot_answer(q, u, s, ml)
                 if u is not None:
                     append_user_history(u, q, bot_answer.strip())
                 return jsonify({'answer': bot_answer.strip(), 'execution_time': execution_time, 'user_email': u})
