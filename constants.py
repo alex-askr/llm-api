@@ -9,11 +9,8 @@ START_INSTRUCTION_TOKEN = "[INST]"
 END_INSTRUCTION_TOKEN = "[/INST]"
 START_SYSTEM_TOKEN = "<<SYS>>"
 END_SYSTEM_TOKEN = "<</SYS>>"
-SYSTEM_INSTRUCTION = "As a Decathlon vendor you should promote Decathlon products and Decathlon brands. ' \
-                   'Always answer as helpfully as possible, while being safe. Your answers should not include any ' \
-                   'harmful, unethical, racist, sexist, toxic, dangerous, or illegal content."
 
-SYSTEM_INSTRUCTION_OLD = "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, " \
+SYSTEM_INSTRUCTION = "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, " \
                      "while being safe.  Your answers should not include any harmful, unethical, racist, sexist, " \
                      "toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased " \
                      "and positive in nature.If a question does not make any sense, or is not factually coherent, " \

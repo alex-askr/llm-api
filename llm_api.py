@@ -49,11 +49,15 @@ def format_response(response):
     return response[response.rindex(END_INSTRUCTION_TOKEN) + 7:]
 
 
-def get_bot_answer(question, user_email):
-    if user_email != '':
-        instruction = get_instruction_from_history(question, user_email)
+def get_bot_answer(question, user_email, system_prompt):
+    if system_prompt != '':
+        sp = system_prompt
     else:
-        instruction = get_instruction(question)
+        sp = SYSTEM_INSTRUCTION
+    if user_email != '':
+        instruction = get_instruction_from_history(question, user_email, sp)
+    else:
+        instruction = get_instruction(question, sp)
     print(instruction)
     start_time = time.time()
     sequences = pipeline(instruction, do_sample=True, top_k=10, num_return_sequences=1,
@@ -84,10 +88,10 @@ def get_filtered_history(qa_list):
     return qa_list
 
 
-def get_instruction_from_history(question, user_email):
+def get_instruction_from_history(question, user_email, system_prompt):
     if global_history.get(user_email) is not None:
         question_history = global_history.get(user_email)
-        instruction = START_SENTENCE_TOKEN + START_INSTRUCTION_TOKEN + START_SYSTEM_TOKEN + SYSTEM_INSTRUCTION \
+        instruction = START_SENTENCE_TOKEN + START_INSTRUCTION_TOKEN + START_SYSTEM_TOKEN + system_prompt \
                       + END_SYSTEM_TOKEN
         for qa in question_history:
             q = qa.get('question')
@@ -99,8 +103,8 @@ def get_instruction_from_history(question, user_email):
         return get_instruction(question)
 
 
-def get_instruction(question):
-    return START_SENTENCE_TOKEN + START_INSTRUCTION_TOKEN + START_SYSTEM_TOKEN + SYSTEM_INSTRUCTION + END_SYSTEM_TOKEN \
+def get_instruction(question, system_prompt):
+    return START_SENTENCE_TOKEN + START_INSTRUCTION_TOKEN + START_SYSTEM_TOKEN + system_prompt + END_SYSTEM_TOKEN \
            + question + END_INSTRUCTION_TOKEN
 
 
@@ -119,9 +123,10 @@ def fine_tune_model(data):
 app = Flask(__name__)
 
 
-# request { 'question': 'this is the user question', 'user_email': 'to keep previous context - not mandatory' }
+# request { 'question': 'this is the user question', 'user_email': 'to keep previous context - not mandatory', 'system_prompt': 'system prompt to use - not mandatory' }
 # response { 'answer': 'this is the bot answer', 'execution_time': 'as the name implies',
 # 'user_email': 'to keep previous context - empty if unknown' }
+# 'system_prompt': 'system instruction for the model - empty to use the one by default' }
 @app.route('/ask', methods=['POST'])
 def answer_question():
     print('Http POST Request received')
