@@ -100,7 +100,7 @@ def get_instruction_from_history(question, user_email, system_prompt):
         return instruction + START_SENTENCE_TOKEN + START_INSTRUCTION_TOKEN + question + END_INSTRUCTION_TOKEN
 
     else:
-        return get_instruction(question)
+        return get_instruction(question, system_prompt)
 
 
 def get_instruction(question, system_prompt):
