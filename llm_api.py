@@ -138,9 +138,10 @@ def answer_question():
             req = request.get_json()
             q = req.get('question')
             u = req.get('user_email')
+            s = req.get('system_prompt')
             if q != '':
                 print('Question:' + q)
-                bot_answer, execution_time = get_bot_answer(q, u)
+                bot_answer, execution_time = get_bot_answer(q, u, s)
                 if u is not None:
                     append_user_history(u, q, bot_answer.strip())
                 return jsonify({'answer': bot_answer.strip(), 'execution_time': execution_time, 'user_email': u})
