@@ -61,7 +61,8 @@ def get_bot_answer(question, user_email, system_prompt, max_answer_length):
     print(instruction)
     start_time = time.time()
     sequences = pipeline(instruction, do_sample=True, top_k=10, num_return_sequences=1,
-                         eos_token_id=tokenizer.eos_token_id, pad_token_id=tokenizer.eos_token_id, max_length=max_answer_length, )
+                         eos_token_id=tokenizer.eos_token_id, pad_token_id=tokenizer.eos_token_id,
+                         max_new_tokens=max_answer_length, )
     bot_response = ''
     for seq in sequences:
         bot_response = format_response(seq['generated_text'])
