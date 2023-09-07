@@ -49,7 +49,7 @@ def format_response(response):
     return response[response.rindex(END_INSTRUCTION_TOKEN) + 7:]
 
 
-def get_bot_answer(question, user_email, system_prompt, max_answer_length):
+def get_bot_answer(question, user_email, system_prompt, max_answer_length, temperature):
     if system_prompt != '':
         sp = system_prompt
     else:
@@ -62,7 +62,7 @@ def get_bot_answer(question, user_email, system_prompt, max_answer_length):
     start_time = time.time()
     sequences = pipeline(instruction, do_sample=True, top_k=10, num_return_sequences=1,
                          eos_token_id=tokenizer.eos_token_id, pad_token_id=tokenizer.eos_token_id,
-                         max_new_tokens=max_answer_length, )
+                         max_new_tokens=max_answer_length, temperature=temperature)
     bot_response = ''
     for seq in sequences:
         bot_response = format_response(seq['generated_text'])
@@ -143,9 +143,10 @@ def answer_question():
             u = req.get('user_email', '')
             s = req.get('system_prompt', '')
             ml = req.get('max_length', 200)
+            t = req.get('temperature', 0.2)
             if q != '':
                 print('Question:' + q)
-                bot_answer, execution_time = get_bot_answer(q, u, s, ml)
+                bot_answer, execution_time = get_bot_answer(q, u, s, ml, t)
                 if u is not None:
                     append_user_history(u, q, bot_answer.strip())
                 return jsonify({'answer': bot_answer.strip(), 'execution_time': execution_time, 'user_email': u})
