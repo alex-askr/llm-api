@@ -61,7 +61,7 @@ def get_bot_answer(question, user_email, system_prompt, max_answer_length, tempe
         instruction = get_instruction(question, sp)
     print(instruction)
     temperature = check_temperature_value(temperature)
-    print("temperature: " + temperature)
+    print("temperature: " + str(temperature))
     start_time = time.time()
     sequences = pipeline(instruction, do_sample=True, top_k=10, num_return_sequences=1,
                          eos_token_id=tokenizer.eos_token_id, pad_token_id=tokenizer.eos_token_id,
