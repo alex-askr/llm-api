@@ -18,7 +18,8 @@ from constants import (
     START_SYSTEM_TOKEN,
     END_SYSTEM_TOKEN,
     SYSTEM_INSTRUCTION,
-    FINE_TUNED_MODEL_NAME
+    FINE_TUNED_MODEL_NAME,
+    TEMPERATURE_DEFAULT_VALUE
 )
 
 global_history = dict()
@@ -59,6 +60,8 @@ def get_bot_answer(question, user_email, system_prompt, max_answer_length, tempe
     else:
         instruction = get_instruction(question, sp)
     print(instruction)
+    temperature = check_temperature_value(temperature)
+    print("temperature: " + temperature)
     start_time = time.time()
     sequences = pipeline(instruction, do_sample=True, top_k=10, num_return_sequences=1,
                          eos_token_id=tokenizer.eos_token_id, pad_token_id=tokenizer.eos_token_id,
@@ -68,6 +71,17 @@ def get_bot_answer(question, user_email, system_prompt, max_answer_length, tempe
         bot_response = format_response(seq['generated_text'])
     execution_time = time.time() - start_time
     return bot_response, execution_time
+
+
+def check_temperature_value(t):
+    if type(t) == float:
+        if t > 0:
+            return t
+        else:
+            return TEMPERATURE_DEFAULT_VALUE
+    if type(t) == str:
+        return check_temperature_value(float(t))
+    return TEMPERATURE_DEFAULT_VALUE
 
 
 def append_user_history(user, question, answer):
@@ -143,7 +157,7 @@ def answer_question():
             u = req.get('user_email', '')
             s = req.get('system_prompt', '')
             ml = req.get('max_length', 200)
-            t = req.get('temperature', 0.2)
+            t = req.get('temperature', TEMPERATURE_DEFAULT_VALUE)
             if q != '':
                 print('Question:' + q)
                 bot_answer, execution_time = get_bot_answer(q, u, s, ml, t)
