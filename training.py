@@ -67,11 +67,13 @@ def training():
         per_device_train_batch_size=PER_DEVICE_BATCH_SIZE,
         gradient_accumulation_steps=GRADIENT_ACCUMULATION_STEPS,
         learning_rate=LEARNING_RATE,
-        num_train_epochs=NUM_TRAIN_EPOCH,
+        max_steps=MAX_STEPS,
         logging_steps=LOGGING_STEPS,
         fp16=True,
         optim="paged_adamw_8bit",
     )
+
+    # or num_train_epochs=NUM_TRAIN_EPOCH,
 
     # Step 4: Define the LoraConfig
     print('# Step 4: Define the LoraConfig')
