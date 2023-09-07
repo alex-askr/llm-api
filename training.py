@@ -67,7 +67,7 @@ def training():
         per_device_train_batch_size=PER_DEVICE_BATCH_SIZE,
         gradient_accumulation_steps=GRADIENT_ACCUMULATION_STEPS,
         learning_rate=LEARNING_RATE,
-        max_steps=MAX_STEPS,
+        num_train_epochs=NUM_TRAIN_EPOCH,
         logging_steps=LOGGING_STEPS,
         fp16=True,
         optim="paged_adamw_8bit",
