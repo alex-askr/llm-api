@@ -19,7 +19,10 @@ from constants import (
     END_SYSTEM_TOKEN,
     SYSTEM_INSTRUCTION,
     FINE_TUNED_MODEL_NAME,
-    TEMPERATURE_DEFAULT_VALUE
+    TEMPERATURE_DEFAULT_VALUE,
+    PIPELINE_TYPE,
+    REPEAT_PENALTY_DEFAULT_VALUE,
+    LENGTH_PENALTY_DEFAULT_VALUE
 )
 
 global_history = dict()
@@ -27,7 +30,7 @@ global_history = dict()
 if os.path.exists(FINE_TUNED_MODEL_NAME):
     tokenizer = AutoTokenizer.from_pretrained(FINE_TUNED_MODEL_NAME)
     pipeline = transformers.pipeline(
-        "text-generation",
+        PIPELINE_TYPE,
         model=FINE_TUNED_MODEL_NAME,
         torch_dtype=torch.float16,
         device_map="auto",
@@ -36,7 +39,7 @@ if os.path.exists(FINE_TUNED_MODEL_NAME):
 else:
     tokenizer = AutoTokenizer.from_pretrained(PRETRAINED_MODEL_NAME)
     pipeline = transformers.pipeline(
-        "text-generation",
+        PIPELINE_TYPE,
         model=PRETRAINED_MODEL_NAME,
         torch_dtype=torch.float16,
         device_map="auto",
@@ -47,10 +50,12 @@ history = []
 
 
 def format_response(response):
-    return response[response.rindex(END_INSTRUCTION_TOKEN) + 7:]
+    r = response[response.rindex(END_INSTRUCTION_TOKEN) + 7:]
+    return r[:r.rfind(".") + 1]
 
 
-def get_bot_answer(question, user_email, system_prompt, max_answer_length, temperature):
+def get_bot_answer(question, user_email, system_prompt, max_answer_length, temperature, repetition_penalty,
+                   length_penalty):
     if system_prompt != '':
         sp = system_prompt
     else:
@@ -65,7 +70,8 @@ def get_bot_answer(question, user_email, system_prompt, max_answer_length, tempe
     start_time = time.time()
     sequences = pipeline(instruction, do_sample=True, top_k=10, num_return_sequences=1,
                          eos_token_id=tokenizer.eos_token_id, pad_token_id=tokenizer.eos_token_id,
-                         max_new_tokens=max_answer_length, temperature=temperature)
+                         max_new_tokens=max_answer_length, temperature=temperature,
+                         repetition_penalty=repetition_penalty, length_penalty=length_penalty)
     bot_response = ''
     for seq in sequences:
         bot_response = format_response(seq['generated_text'])
@@ -158,9 +164,11 @@ def answer_question():
             s = req.get('system_prompt', '')
             ml = req.get('max_length', 200)
             t = req.get('temperature', TEMPERATURE_DEFAULT_VALUE)
+            rp = req.get('repeat_penalty', REPEAT_PENALTY_DEFAULT_VALUE)
+            lp = req.get('length_penalty', LENGTH_PENALTY_DEFAULT_VALUE)
             if q != '':
                 print('Question:' + q)
-                bot_answer, execution_time = get_bot_answer(q, u, s, ml, t)
+                bot_answer, execution_time = get_bot_answer(q, u, s, ml, t, rp, lp)
                 if u is not None:
                     append_user_history(u, q, bot_answer.strip())
                 return jsonify({'answer': bot_answer.strip(), 'execution_time': execution_time, 'user_email': u})
