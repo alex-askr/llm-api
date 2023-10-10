@@ -6,7 +6,7 @@ import torch
 import transformers
 from flask import Flask, jsonify, request
 from transformers import AutoTokenizer
-from trl import SFTTrainer
+
 
 from constants import (
     HISTORY_MAX_TOKEN,
@@ -130,18 +130,6 @@ def get_instruction_from_history(question, user_email, system_prompt):
 def get_instruction(question, system_prompt):
     return START_SENTENCE_TOKEN + START_INSTRUCTION_TOKEN + START_SYSTEM_TOKEN + system_prompt + END_SYSTEM_TOKEN \
            + question + END_INSTRUCTION_TOKEN
-
-
-def fine_tune_model(data):
-    trainer = SFTTrainer(
-        PRETRAINED_MODEL_NAME,
-        train_dataset=data,
-        dataset_text_field="text",
-        max_seq_length=512,
-    )
-
-    trainer.train()
-    return
 
 
 app = Flask(__name__)
