@@ -1,5 +1,6 @@
 import os
 import time
+import uuid
 
 import torch
 import transformers
@@ -10,7 +11,6 @@ from trl import SFTTrainer
 from constants import (
     HISTORY_MAX_TOKEN,
     PRETRAINED_MODEL_NAME,
-    BEARER,
     START_SENTENCE_TOKEN,
     END_SENTENCE_TOKEN,
     START_INSTRUCTION_TOKEN,
@@ -26,6 +26,9 @@ from constants import (
 )
 
 global_history = dict()
+
+BEARER = str(uuid.uuid4())
+print("**** Authentication BEARER = " + BEARER)
 
 if os.path.exists(FINE_TUNED_MODEL_NAME):
     tokenizer = AutoTokenizer.from_pretrained(FINE_TUNED_MODEL_NAME)
@@ -174,31 +177,6 @@ def answer_question():
                 return jsonify({'answer': bot_answer.strip(), 'execution_time': execution_time, 'user_email': u})
             else:
                 return 'Missing question argument', 400
-        else:
-            return '', 401
-    except NameError:
-        return '', 401
-
-    # request { 'fine_tuning_data': [{'instruction', 'answer'}, {'instruction', 'answer'}] }
-
-
-# response { 'answer': 'this is the bot answer', 'execution_time': 'as the name implies',
-# 'user_email': 'to keep previous context - empty if unknown' }
-@app.route('/train', methods=['POST'])
-def fine_tune():
-    print('Http POST Request received')
-    authorization = request.headers.get('Authorization')
-    content_type = request.headers.get('Content-Type')
-    try:
-        if authorization == 'Bearer ' + BEARER and content_type == 'application/json':
-            print('Request authorized')
-            req = request.get_json()
-            data = req.get('fine_tuning_data')
-            if data.len() > 1:
-                fine_tune_model(data)
-                return '', 200
-            else:
-                return 'Missing fine_tuning_data argument', 400
         else:
             return '', 401
     except NameError:
